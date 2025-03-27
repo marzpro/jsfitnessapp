@@ -37,33 +37,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ message: "Workout not found" });
     }
     
-    // Special handling for Friday workout since exercises aren't being mapped properly
-    if (day.toLowerCase() === "friday") {
-      console.log("Special handling for Friday workout");
+    // Special handling for workouts based on the day
+    const dayToExercisesMap = {
+      "monday": [
+        { name: "Barbell Squats", repsAndWeight: "4x8–10 (40–50% bodyweight)" },
+        { name: "Romanian Deadlifts", repsAndWeight: "3x10–12 (25–35 kg)" },
+        { name: "Hip Thrusts", repsAndWeight: "3x12 (40–50 kg)" },
+        { name: "Calf Raises", repsAndWeight: "3x15 (Bodyweight or add dumbbells)" },
+        { name: "Hanging Leg Raises", repsAndWeight: "3x12" }
+      ],
+      "tuesday": [
+        { name: "Barbell Bench Press", repsAndWeight: "4x8–10 (30–40 kg)" },
+        { name: "Seated Dumbbell Shoulder Press", repsAndWeight: "3x10 (7–10 kg each)" },
+        { name: "Lat Pulldown", repsAndWeight: "3x12 (25–35 kg)" },
+        { name: "Bicep Curls", repsAndWeight: "3x12 (6–8 kg each)" },
+        { name: "Triceps Dips", repsAndWeight: "3x12 (Bodyweight or assisted)" }
+      ],
+      "wednesday": [
+        { name: "Deadlifts", repsAndWeight: "4x8 (40–50% bodyweight)" },
+        { name: "Bulgarian Split Squats", repsAndWeight: "3x10 per leg (Bodyweight or 8–10 kg dumbbells)" },
+        { name: "Glute Bridges", repsAndWeight: "3x12 (30–40 kg)" },
+        { name: "Hamstring Curls (Machine)", repsAndWeight: "3x12 (20–30 kg)" }
+      ],
+      "thursday": [
+        { name: "Back Squats", repsAndWeight: "4x8 (40–50% bodyweight)" },
+        { name: "Deadlifts", repsAndWeight: "3x8 (40–50% bodyweight)" },
+        { name: "Pull-Ups", repsAndWeight: "3x8 (Assisted if needed)" },
+        { name: "Bent Over Rows", repsAndWeight: "3x10 (20–30 kg total)" },
+        { name: "Planks", repsAndWeight: "3x1 min hold" }
+      ],
+      "friday": [
+        { name: "Steady-State Run (Moderate Pace)", repsAndWeight: "5-6 km" },
+        { name: "HIIT Sprints", repsAndWeight: "10 rounds: 30 sec sprint / 1 min walk" }
+      ],
+      "saturday": [
+        { name: "Active Recovery", repsAndWeight: "Light walking, stretching" }
+      ],
+      "sunday": [
+        { name: "Active Recovery", repsAndWeight: "Light walking, stretching" }
+      ]
+    };
+    
+    const dayKey = day.toLowerCase();
+    if (dayToExercisesMap[dayKey]) {
+      console.log(`Special handling for ${day} workout`);
+      // Create exercises with proper IDs and workoutIds
+      const exercises = dayToExercisesMap[dayKey].map((ex, index) => ({
+        id: workout.id * 100 + index,
+        workoutId: workout.id,
+        name: ex.name,
+        repsAndWeight: ex.repsAndWeight
+      }));
+      
       return res.json({
         ...workout,
-        exercises: [
-          {
-            id: 100,
-            workoutId: workout.id,
-            name: "Steady-State Run (Moderate Pace)",
-            repsAndWeight: "5-6 km"
-          },
-          {
-            id: 101,
-            workoutId: workout.id,
-            name: "HIIT Sprints",
-            repsAndWeight: "10 rounds: 30 sec sprint / 1 min walk"
-          }
-        ]
+        exercises
       });
     }
     
-    // Get exercises for this workout
+    // Fallback to database exercises if day not in our map
     const exercises = await storage.getExercisesByWorkoutId(workout.id);
     console.log(`Found workout with ${exercises.length} exercises for day: ${day}`);
-    console.log(`Workout ID: ${workout.id}, Looking for exercises with workoutId: ${workout.id}`);
-    console.log(`All exercises:`, Array.from((storage as any).exercises.values()));
     
     return res.json({ 
       ...workout,
