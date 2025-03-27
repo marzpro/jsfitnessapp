@@ -3,7 +3,9 @@ import {
   meals, type Meal, type InsertMeal,
   workouts, type Workout, type InsertWorkout,
   exercises, type Exercise, type InsertExercise,
-  progress, type Progress, type InsertProgress
+  progress, type Progress, type InsertProgress,
+  reminders, type Reminder, type InsertReminder,
+  notificationSettings, type NotificationSettings, type InsertNotificationSettings
 } from "@shared/schema";
 
 export interface IStorage {
@@ -30,6 +32,21 @@ export interface IStorage {
   getProgressByUserAndDay(userId: number, dayNumber: number): Promise<Progress | undefined>;
   createProgress(progress: InsertProgress): Promise<Progress>;
   updateProgress(id: number, progress: Partial<InsertProgress>): Promise<Progress>;
+  
+  // Reminders methods
+  getRemindersByUser(userId: number): Promise<Reminder[]>;
+  getReminderById(id: number): Promise<Reminder | undefined>;
+  createReminder(reminder: InsertReminder): Promise<Reminder>;
+  updateReminder(id: number, reminder: Partial<InsertReminder>): Promise<Reminder>;
+  deleteReminder(id: number): Promise<boolean>;
+  
+  // Notification settings methods
+  getNotificationSettingsByUser(userId: number): Promise<NotificationSettings | undefined>;
+  createNotificationSettings(settings: InsertNotificationSettings): Promise<NotificationSettings>;
+  updateNotificationSettings(userId: number, settings: Partial<InsertNotificationSettings>): Promise<NotificationSettings>;
+  
+  // Utility methods for mapping day numbers to days
+  getDayMappingByNumber(dayNumber: number): Promise<{ day: string; date: string } | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -38,12 +55,16 @@ export class MemStorage implements IStorage {
   private workouts: Map<number, Workout>;
   private exercises: Map<number, Exercise>;
   private progresses: Map<number, Progress>;
+  private reminders: Map<number, Reminder>;
+  private notificationSettings: Map<number, NotificationSettings>;
   
   private userId: number;
   private mealId: number;
   private workoutId: number;
   private exerciseId: number;
   private progressId: number;
+  private reminderId: number;
+  private notificationSettingsId: number;
 
   constructor() {
     this.users = new Map();
@@ -214,6 +235,12 @@ export class MemStorage implements IStorage {
     // Now mondayWorkout.id is available
     await this.createExercise({
       workoutId: mondayWorkout.id,
+      name: "Warm-up Cardio",
+      repsAndWeight: "10 min moderate intensity"
+    });
+    
+    await this.createExercise({
+      workoutId: mondayWorkout.id,
       name: "Barbell Squats",
       repsAndWeight: "4x8–10 (40–50% bodyweight)"
     });
@@ -267,6 +294,12 @@ export class MemStorage implements IStorage {
       dayNumber: 2
     });
 
+    await this.createExercise({
+      workoutId: tuesdayWorkout.id,
+      name: "Warm-up Cardio",
+      repsAndWeight: "10 min moderate intensity"
+    });
+    
     await this.createExercise({
       workoutId: tuesdayWorkout.id,
       name: "Barbell Bench Press",
@@ -324,6 +357,12 @@ export class MemStorage implements IStorage {
 
     await this.createExercise({
       workoutId: wednesdayWorkout.id,
+      name: "Warm-up Cardio",
+      repsAndWeight: "10 min moderate intensity"
+    });
+    
+    await this.createExercise({
+      workoutId: wednesdayWorkout.id,
       name: "Deadlifts",
       repsAndWeight: "4x8 (40–50% bodyweight)"
     });
@@ -372,6 +411,12 @@ export class MemStorage implements IStorage {
       dayNumber: 4
     });
 
+    await this.createExercise({
+      workoutId: thursdayWorkout.id,
+      name: "Warm-up Cardio",
+      repsAndWeight: "10 min moderate intensity"
+    });
+    
     await this.createExercise({
       workoutId: thursdayWorkout.id,
       name: "Back Squats",
@@ -433,6 +478,12 @@ export class MemStorage implements IStorage {
     // Now we can safely use the ID
     await this.createExercise({
       workoutId: fridayWorkout.id,
+      name: "Warm-up Cardio",
+      repsAndWeight: "10 min light intensity"
+    });
+    
+    await this.createExercise({
+      workoutId: fridayWorkout.id,
       name: "Steady-State Run (Moderate Pace)",
       repsAndWeight: "5-6 km"
     });
@@ -466,11 +517,23 @@ export class MemStorage implements IStorage {
       dayNumber: 6
     });
 
-    // No workout on Saturday (rest day)
-    await this.createWorkout({
+    // Active recovery on Saturday
+    const saturdayWorkout = await this.createWorkout({
       day: "saturday",
-      type: "Rest Day (Active Recovery: Walking/Stretching)",
+      type: "Rest Day (Active Recovery)",
       dayNumber: 6
+    });
+    
+    await this.createExercise({
+      workoutId: saturdayWorkout.id,
+      name: "Light Cardio Walk",
+      repsAndWeight: "10-15 min at comfortable pace"
+    });
+    
+    await this.createExercise({
+      workoutId: saturdayWorkout.id,
+      name: "Gentle Stretching",
+      repsAndWeight: "Full body, 15-20 min"
     });
 
     // Sunday - Day 7
@@ -496,11 +559,23 @@ export class MemStorage implements IStorage {
       dayNumber: 7
     });
 
-    // No workout on Sunday (rest day)
-    await this.createWorkout({
+    // Active recovery on Sunday
+    const sundayWorkout = await this.createWorkout({
       day: "sunday",
-      type: "Rest Day (Active Recovery: Walking/Stretching)",
+      type: "Rest Day (Active Recovery)",
       dayNumber: 7
+    });
+    
+    await this.createExercise({
+      workoutId: sundayWorkout.id,
+      name: "Light Cardio Walk",
+      repsAndWeight: "10-15 min at comfortable pace"
+    });
+    
+    await this.createExercise({
+      workoutId: sundayWorkout.id,
+      name: "Gentle Stretching",
+      repsAndWeight: "Full body, 15-20 min"
     });
   }
 }

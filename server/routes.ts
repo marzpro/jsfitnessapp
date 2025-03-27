@@ -269,6 +269,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     return res.json(weeklyProgress);
   });
+  
+  // Get progress statistics for all days
+  app.get("/api/progress-stats", async (req, res) => {
+    // For simplicity, we'll use a hardcoded user ID of 1
+    const userId = 1;
+    
+    const allProgress = [];
+    
+    // Get progress for all 40 days
+    for (let dayNumber = 1; dayNumber <= 40; dayNumber++) {
+      let dayProgress = await storage.getProgressByUserAndDay(userId, dayNumber);
+      
+      if (dayProgress) {
+        // Fetch the meals for this day
+        const dayMapping = await storage.getDayMappingByNumber(dayNumber);
+        if (dayMapping) {
+          const meals = await storage.getMealsByDay(dayMapping.day);
+          const workout = await storage.getWorkoutByDay(dayMapping.day);
+
+          // Parse the meal completions
+          const mealCompletions = JSON.parse(dayProgress.mealCompletions || '[]');
+          const exerciseCompletions = JSON.parse(dayProgress.exerciseCompletions || '[]');
+          
+          // Calculate meal completion rate
+          const mealCompletionRate = meals.length > 0 ? mealCompletions.length / meals.length : 0;
+          
+          // Calculate exercise completion rate if there's a workout
+          let exerciseCompletionRate = 0;
+          let exerciseCount = 0;
+          
+          if (workout) {
+            // Get exercises for this workout
+            const exercises = await storage.getExercisesByWorkoutId(workout.id);
+            exerciseCount = exercises.length;
+            
+            if (exerciseCount > 0) {
+              exerciseCompletionRate = exerciseCompletions.length / exerciseCount;
+            }
+          }
+          
+          allProgress.push({
+            dayNumber: dayProgress.dayNumber,
+            date: dayProgress.date,
+            mealCompletionRate,
+            workoutCompleted: dayProgress.workoutCompleted,
+            exerciseCompletionRate,
+            weekNumber: Math.ceil(dayNumber / 7)
+          });
+        }
+      }
+    }
+    
+    // Calculate statistics by week
+    const weeklyStats = [];
+    for (let weekNumber = 1; weekNumber <= 6; weekNumber++) {
+      const weekDays = allProgress.filter(day => day.weekNumber === weekNumber);
+      
+      if (weekDays.length > 0) {
+        const totalMealCompletionRate = weekDays.reduce((sum, day) => sum + day.mealCompletionRate, 0) / weekDays.length;
+        const workoutCompletionCount = weekDays.filter(day => day.workoutCompleted).length;
+        const workoutCompletionRate = weekDays.length > 0 ? workoutCompletionCount / weekDays.length : 0;
+        const totalExerciseCompletionRate = weekDays.reduce((sum, day) => sum + day.exerciseCompletionRate, 0) / weekDays.length;
+        
+        weeklyStats.push({
+          weekNumber,
+          mealCompletionRate: totalMealCompletionRate,
+          workoutCompletionRate,
+          exerciseCompletionRate: totalExerciseCompletionRate
+        });
+      }
+    }
+    
+    return res.json({
+      dailyProgress: allProgress,
+      weeklyStats
+    });
+  });
 
   const httpServer = createServer(app);
   return httpServer;

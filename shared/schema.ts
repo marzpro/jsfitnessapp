@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, date, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, date, timestamp, time } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -84,3 +84,43 @@ export const insertProgressSchema = createInsertSchema(progress).omit({
 
 export type InsertProgress = z.infer<typeof insertProgressSchema>;
 export type Progress = typeof progress.$inferSelect;
+
+// Reminders schema
+export const reminders = pgTable("reminders", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  type: text("type").notNull(), // "meal" or "workout"
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  time: text("time").notNull(), // Time of day for the reminder (e.g., "12:00")
+  days: text("days").notNull(), // JSON array of days (e.g., ["monday", "wednesday", "friday"])
+  enabled: boolean("enabled").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertReminderSchema = createInsertSchema(reminders).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertReminder = z.infer<typeof insertReminderSchema>;
+export type Reminder = typeof reminders.$inferSelect;
+
+// Notification settings schema
+export const notificationSettings = pgTable("notification_settings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().unique(),
+  enableBrowserNotifications: boolean("enable_browser_notifications").notNull().default(true),
+  enableEmailNotifications: boolean("enable_email_notifications").notNull().default(false),
+  emailAddress: text("email_address"),
+  reminderAdvanceMinutes: integer("reminder_advance_minutes").notNull().default(15), // How many minutes in advance to send notifications
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertNotificationSettingsSchema = createInsertSchema(notificationSettings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertNotificationSettings = z.infer<typeof insertNotificationSettingsSchema>;
+export type NotificationSettings = typeof notificationSettings.$inferSelect;
