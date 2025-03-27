@@ -15,6 +15,13 @@ const WeeklySummary = ({ weekNumber, onClose }: WeeklySummaryProps) => {
   const { data: weeklyProgress, isLoading } = useQuery({
     queryKey: ['/api/weekly-summary', weekNumber.toString()],
     retry: false,
+    queryFn: async () => {
+      const response = await fetch(`/api/weekly-summary/${weekNumber}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch weekly summary');
+      }
+      return response.json();
+    }
   });
 
   // Calculate meal completion percentage

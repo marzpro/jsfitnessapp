@@ -69,7 +69,7 @@ export const progress = pgTable("progress", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   dayNumber: integer("day_number").notNull(), // 1-40
-  date: date("date").notNull(),
+  date: text("date").notNull(), // Storing as ISO string YYYY-MM-DD
   mealCompletions: text("meal_completions").notNull(), // JSON string of meal IDs that are completed
   workoutCompleted: boolean("workout_completed").notNull().default(false),
   notes: text("notes"),

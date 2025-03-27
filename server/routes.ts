@@ -10,21 +10,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get meals for a specific day
   app.get("/api/meals/:day", async (req, res) => {
     const { day } = req.params;
+    console.log(`Fetching meals for day: ${day}`);
+    
+    if (!day) {
+      return res.status(400).json({ message: "Day parameter is required" });
+    }
+    
     const meals = await storage.getMealsByDay(day.toLowerCase());
+    console.log(`Found ${meals.length} meals for day: ${day}`);
     return res.json(meals);
   });
 
   // Get workout for a specific day
   app.get("/api/workouts/:day", async (req, res) => {
     const { day } = req.params;
+    console.log(`Fetching workout for day: ${day}`);
+    
+    if (!day) {
+      return res.status(400).json({ message: "Day parameter is required" });
+    }
+    
     const workout = await storage.getWorkoutByDay(day.toLowerCase());
     
     if (!workout) {
+      console.log(`No workout found for day: ${day}`);
       return res.status(404).json({ message: "Workout not found" });
     }
     
     // Get exercises for this workout
     const exercises = await storage.getExercisesByWorkoutId(workout.id);
+    console.log(`Found workout with ${exercises.length} exercises for day: ${day}`);
     
     return res.json({ 
       ...workout,
@@ -35,8 +50,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get progress for a specific day
   app.get("/api/progress/:dayNumber", async (req, res) => {
     const dayNumber = parseInt(req.params.dayNumber);
+    console.log(`Fetching progress for day number: ${req.params.dayNumber}, parsed: ${dayNumber}`);
     
     if (isNaN(dayNumber)) {
+      console.log(`Invalid day number: ${req.params.dayNumber}`);
       return res.status(400).json({ message: "Invalid day number" });
     }
     
@@ -46,15 +63,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     let progress = await storage.getProgressByUserAndDay(userId, dayNumber);
     
     if (!progress) {
+      console.log(`No progress found for day: ${dayNumber}, creating new progress`);
       // Create new progress for this day if it doesn't exist
+      // Convert to string format for the date type in the schema (YYYY-MM-DD)
+      const formattedDate = new Date().toISOString().split('T')[0];
       progress = await storage.createProgress({
         userId,
         dayNumber,
-        date: new Date(),
+        date: formattedDate,
         mealCompletions: JSON.stringify([]),
         workoutCompleted: false,
         notes: ""
       });
+    } else {
+      console.log(`Found progress for day: ${dayNumber}`);
     }
     
     return res.json(progress);
@@ -80,10 +102,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!progress) {
         // Create new progress
+        const formattedDate = new Date().toISOString().split('T')[0];
         progress = await storage.createProgress({
           userId,
           dayNumber,
-          date: new Date(),
+          date: formattedDate,
           mealCompletions: data.mealCompletions || JSON.stringify([]),
           workoutCompleted: data.workoutCompleted || false,
           notes: data.notes || ""
@@ -124,10 +147,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     if (!progress) {
       // Create new progress
+      const formattedDate = new Date().toISOString().split('T')[0];
       progress = await storage.createProgress({
         userId,
         dayNumber,
-        date: new Date(),
+        date: formattedDate,
         mealCompletions: JSON.stringify([]),
         workoutCompleted: false,
         notes
@@ -163,10 +187,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!dayProgress) {
         // Create new progress for this day if it doesn't exist
+        const formattedDate = new Date().toISOString().split('T')[0];
         dayProgress = await storage.createProgress({
           userId,
           dayNumber,
-          date: new Date(),
+          date: formattedDate,
           mealCompletions: JSON.stringify([]),
           workoutCompleted: false,
           notes: ""

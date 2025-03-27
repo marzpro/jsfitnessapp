@@ -21,18 +21,39 @@ const Home = () => {
   const { data: meals, isLoading: mealsLoading } = useQuery({
     queryKey: ['/api/meals', getDayName(currentDayNumber)],
     retry: false,
+    queryFn: async () => {
+      const response = await fetch(`/api/meals/${getDayName(currentDayNumber)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch meals');
+      }
+      return response.json();
+    }
   });
   
   // Query for the workout of the current day
   const { data: workoutData, isLoading: workoutLoading } = useQuery({
     queryKey: ['/api/workouts', getDayName(currentDayNumber)], 
     retry: false,
+    queryFn: async () => {
+      const response = await fetch(`/api/workouts/${getDayName(currentDayNumber)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch workout');
+      }
+      return response.json();
+    }
   });
   
   // Query for the progress of the current day
   const { data: progressData, isLoading: progressLoading } = useQuery({
     queryKey: ['/api/progress', currentDayNumber.toString()],
     retry: false,
+    queryFn: async () => {
+      const response = await fetch(`/api/progress/${currentDayNumber}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch progress');
+      }
+      return response.json();
+    }
   });
   
   // Mutation for updating progress
