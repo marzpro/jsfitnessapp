@@ -40,6 +40,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Get exercises for this workout
     const exercises = await storage.getExercisesByWorkoutId(workout.id);
     console.log(`Found workout with ${exercises.length} exercises for day: ${day}`);
+    console.log(`Workout ID: ${workout.id}, Looking for exercises with workoutId: ${workout.id}`);
+    console.log(`All exercises:`, Array.from((storage as any).exercises.values()));
     
     return res.json({ 
       ...workout,

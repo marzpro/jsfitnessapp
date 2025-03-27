@@ -18,10 +18,19 @@ interface WorkoutCardProps {
 
 const WorkoutCard = ({ workout, isCompleted, onComplete }: WorkoutCardProps) => {
   const [checked, setChecked] = useState(isCompleted);
+  const [showWorkoutDetails, setShowWorkoutDetails] = useState(false);
   
   const handleChange = (checked: boolean) => {
     setChecked(checked);
     onComplete(checked);
+  };
+
+  const startWorkout = () => {
+    setShowWorkoutDetails(true);
+    // If the workout is started, we can optionally mark it as in progress
+    if (!checked) {
+      console.log("Starting workout:", workout.type);
+    }
   };
 
   return (
@@ -47,14 +56,22 @@ const WorkoutCard = ({ workout, isCompleted, onComplete }: WorkoutCardProps) => 
           </div>
         </div>
         
-        <ul className="space-y-3 text-sm text-gray-600">
-          {workout.exercises.map((exercise) => (
-            <li key={exercise.id} className="flex items-start">
-              <i className="fas fa-check-circle text-purple-500 mt-1 flex-shrink-0"></i>
-              <span className="ml-2">{exercise.name} – {exercise.repsAndWeight}</span>
-            </li>
-          ))}
-        </ul>
+        {showWorkoutDetails || workout.exercises?.length > 0 ? (
+          <div className="mt-4">
+            <h5 className="font-medium text-gray-800 mb-2">Workout Details:</h5>
+            <ul className="space-y-3 text-sm text-gray-600">
+              {workout.exercises?.map((exercise) => (
+                <li key={exercise.id} className="flex items-start">
+                  <i className="fas fa-check-circle text-purple-500 mt-1 flex-shrink-0"></i>
+                  <span className="ml-2">{exercise.name} – {exercise.repsAndWeight}</span>
+                </li>
+              ))}
+              {(!workout.exercises || workout.exercises.length === 0) && (
+                <li className="text-center text-gray-500">No specific exercises. Follow the workout type instructions.</li>
+              )}
+            </ul>
+          </div>
+        ) : null}
         
         <div className="mt-6">
           <div className="flex items-center justify-between">
@@ -73,9 +90,12 @@ const WorkoutCard = ({ workout, isCompleted, onComplete }: WorkoutCardProps) => 
         </div>
         
         <div className="mt-4 flex justify-center">
-          <Button className="bg-purple-500 hover:bg-purple-700">
+          <Button 
+            className="bg-purple-500 hover:bg-purple-700"
+            onClick={startWorkout}
+          >
             <i className="fas fa-play mr-2"></i>
-            Start Workout
+            {showWorkoutDetails ? 'Workout Details' : 'Start Workout'}
           </Button>
         </div>
       </div>
