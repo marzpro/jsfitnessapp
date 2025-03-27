@@ -73,6 +73,7 @@ export const progress = pgTable("progress", {
   mealCompletions: text("meal_completions").notNull(), // JSON string of meal IDs that are completed
   workoutCompleted: boolean("workout_completed").notNull().default(false),
   exerciseCompletions: text("exercise_completions").notNull().default('[]'), // JSON string of exercise IDs that are completed
+  dailyWalkCompleted: boolean("daily_walk_completed").notNull().default(false), // 4km walk completion
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

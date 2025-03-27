@@ -183,6 +183,7 @@ export class MemStorage implements IStorage {
       mealCompletions: progress.mealCompletions || '[]',
       workoutCompleted: progress.workoutCompleted || false,
       exerciseCompletions: progress.exerciseCompletions || '[]',
+      dailyWalkCompleted: progress.dailyWalkCompleted || false,
       notes: progress.notes || null
     };
     this.progresses.set(id, newProgress);
@@ -198,6 +199,39 @@ export class MemStorage implements IStorage {
     const updatedProgress: Progress = { ...existingProgress, ...progress };
     this.progresses.set(id, updatedProgress);
     return updatedProgress;
+  }
+
+  async getDayMappingByNumber(dayNumber: number): Promise<{ day: string; date: string } | undefined> {
+    // Map of day numbers to day names
+    const dayMap: { [key: number]: string } = {
+      1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 
+      5: "friday", 6: "saturday", 7: "sunday", 8: "monday", 
+      9: "tuesday", 10: "wednesday", 11: "thursday", 12: "friday", 
+      13: "saturday", 14: "sunday", 15: "monday", 16: "tuesday", 
+      17: "wednesday", 18: "thursday", 19: "friday", 20: "saturday", 
+      21: "sunday", 22: "monday", 23: "tuesday", 24: "wednesday", 
+      25: "thursday", 26: "friday", 27: "saturday", 28: "sunday", 
+      29: "monday", 30: "tuesday", 31: "wednesday", 32: "thursday",
+      33: "friday", 34: "saturday", 35: "sunday", 36: "monday",
+      37: "tuesday", 38: "wednesday", 39: "thursday", 40: "friday"
+    };
+    
+    if (!dayMap[dayNumber]) {
+      return undefined;
+    }
+    
+    // Get the day name for this day number
+    const day = dayMap[dayNumber];
+    
+    // Calculate the date - starting from March 31, 2025
+    const startDate = new Date(2025, 2, 31); // March 31, 2025
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + dayNumber - 1);
+    
+    return {
+      day,
+      date: date.toISOString().split('T')[0]
+    };
   }
 
   // Initialize with the meal and workout plan data

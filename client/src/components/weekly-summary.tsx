@@ -68,8 +68,29 @@ const WeeklySummary = ({ weekNumber, onClose }: WeeklySummaryProps) => {
     };
   };
   
+  // Calculate daily walk completion percentage
+  const calculateDailyWalkCompletion = () => {
+    if (!weeklyProgress) return { completed: 0, total: 7, percentage: 0 };
+    
+    let totalWalksCompleted = 0;
+    const totalDays = 7; // All 7 days of the week should have a daily walk
+    
+    weeklyProgress.forEach((day: any) => {
+      if (day.dailyWalkCompleted) {
+        totalWalksCompleted++;
+      }
+    });
+    
+    return {
+      completed: totalWalksCompleted,
+      total: totalDays,
+      percentage: (totalWalksCompleted / totalDays) * 100
+    };
+  };
+  
   const mealCompletion = calculateMealCompletion();
   const workoutCompletion = calculateWorkoutCompletion();
+  const walkCompletion = calculateDailyWalkCompletion();
 
   // Handle click outside to close
   useEffect(() => {
@@ -102,7 +123,7 @@ const WeeklySummary = ({ weekNumber, onClose }: WeeklySummaryProps) => {
             <div className="py-10 text-center text-gray-500">Loading summary data...</div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <h4 className="font-medium text-gray-900 mb-3">Weekly Meal Compliance</h4>
                   <div className="bg-gray-100 rounded-lg p-4">
@@ -140,14 +161,33 @@ const WeeklySummary = ({ weekNumber, onClose }: WeeklySummaryProps) => {
                     </p>
                   </div>
                 </div>
+                
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Daily 4 km Walks</h4>
+                  <div className="bg-gray-100 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-600">Walks Completed</span>
+                      <span className="text-sm font-medium">{walkCompletion.completed}/{walkCompletion.total}</span>
+                    </div>
+                    <Progress 
+                      value={walkCompletion.percentage} 
+                      className="mb-4"
+                      fill="bg-blue-500"
+                    />
+                    <p className="text-sm text-gray-600">
+                      You've completed {Math.round(walkCompletion.percentage)}% of your daily walks this week.
+                      {walkCompletion.percentage >= 70 ? " Excellent!" : " Keep walking!"}
+                    </p>
+                  </div>
+                </div>
               </div>
               
               <div className="mt-6">
-                <h4 className="font-medium text-gray-900 mb-3">Calorie Intake</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Weekly Progress Overview</h4>
                 <div className="bg-gray-100 rounded-lg p-4 h-48 flex items-center justify-center">
                   <div className="text-center text-gray-500">
                     <i className="fas fa-chart-line text-4xl mb-2"></i>
-                    <p>Calorie intake visualization would appear here</p>
+                    <p>Weekly progress visualization would appear here</p>
                   </div>
                 </div>
               </div>

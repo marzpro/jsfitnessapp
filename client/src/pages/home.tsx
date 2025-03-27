@@ -7,6 +7,7 @@ import ProgressTracker from "@/components/progress-tracker";
 import DateNavigation from "@/components/date-navigation";
 import MealCard from "@/components/meal-card";
 import WorkoutCard from "@/components/workout-card";
+import DailyWalkCard from "@/components/daily-walk-card";
 import NotesSection from "@/components/notes-section";
 import WeeklySummary from "@/components/weekly-summary";
 import { useToast } from "@/hooks/use-toast";
@@ -150,6 +151,13 @@ const Home = () => {
     });
   };
   
+  // Handle daily walk completion
+  const handleDailyWalkComplete = (completed: boolean) => {
+    updateProgressMutation.mutate({
+      dailyWalkCompleted: completed
+    });
+  };
+  
   // Handle notes update
   const handleSaveNotes = (notes: string) => {
     updateNotesMutation.mutate(notes);
@@ -260,6 +268,16 @@ const Home = () => {
             ) : (
               <div className="bg-white rounded-lg shadow p-10 text-center text-gray-500">
                 No workout found for this day
+              </div>
+            )}
+            
+            {/* Daily Walk Section */}
+            {!progressLoading && (
+              <div className="mt-6">
+                <DailyWalkCard
+                  isCompleted={progressData?.dailyWalkCompleted || false}
+                  onComplete={handleDailyWalkComplete}
+                />
               </div>
             )}
           </div>
