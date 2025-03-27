@@ -7,8 +7,8 @@ export type DayMapping = {
   date: Date;
 }
 
-// The meal plan starts on Monday, March 31, 2023
-const startDate = new Date("2023-03-31");
+// The meal plan starts on Monday, March 31, 2025
+const startDate = new Date("2025-03-31");
 
 // Map day numbers (1-40) to day names and dates
 export const generateDayMappings = (): DayMapping[] => {
@@ -69,7 +69,7 @@ export const getWeekDateRange = (weekNumber: number): string => {
 // Calculate the current week based on the current date
 export const getCurrentWeek = (): number => {
   const now = new Date();
-  const endDate = new Date("2023-05-09");
+  const endDate = new Date("2025-05-09");
   
   // If before start date, return week 1
   if (now < startDate) {
@@ -91,7 +91,7 @@ export const getCurrentWeek = (): number => {
 // Calculate the current day number based on the current date
 export const getCurrentDayNumber = (): number => {
   const now = new Date();
-  const endDate = new Date("2023-05-09");
+  const endDate = new Date("2025-05-09");
   
   // If before start date, return day 1
   if (now < startDate) {

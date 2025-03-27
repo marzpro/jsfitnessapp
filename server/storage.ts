@@ -153,7 +153,17 @@ export class MemStorage implements IStorage {
 
   async createProgress(progress: InsertProgress): Promise<Progress> {
     const id = this.progressId++;
-    const newProgress: Progress = { ...progress, id, createdAt: new Date() };
+    const newProgress: Progress = { 
+      id, 
+      createdAt: new Date(),
+      dayNumber: progress.dayNumber,
+      userId: progress.userId,
+      date: progress.date,
+      mealCompletions: progress.mealCompletions || '[]',
+      workoutCompleted: progress.workoutCompleted || false,
+      exerciseCompletions: progress.exerciseCompletions || '[]',
+      notes: progress.notes || null
+    };
     this.progresses.set(id, newProgress);
     return newProgress;
   }
@@ -251,33 +261,33 @@ export class MemStorage implements IStorage {
       dayNumber: 2
     });
 
-    const tuesdayWorkout = this.createWorkout({
+    const tuesdayWorkout = await this.createWorkout({
       day: "tuesday",
       type: "Upper Body & Arms",
       dayNumber: 2
     });
 
-    this.createExercise({
+    await this.createExercise({
       workoutId: tuesdayWorkout.id,
       name: "Barbell Bench Press",
       repsAndWeight: "4x8–10 (30–40 kg)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: tuesdayWorkout.id,
       name: "Seated Dumbbell Shoulder Press",
       repsAndWeight: "3x10 (7–10 kg each)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: tuesdayWorkout.id,
       name: "Lat Pulldown",
       repsAndWeight: "3x12 (25–35 kg)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: tuesdayWorkout.id,
       name: "Bicep Curls",
       repsAndWeight: "3x12 (6–8 kg each)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: tuesdayWorkout.id,
       name: "Triceps Dips",
       repsAndWeight: "3x12 (Bodyweight or assisted)"
@@ -306,28 +316,28 @@ export class MemStorage implements IStorage {
       dayNumber: 3
     });
 
-    const wednesdayWorkout = this.createWorkout({
+    const wednesdayWorkout = await this.createWorkout({
       day: "wednesday",
       type: "Glutes & Hamstrings",
       dayNumber: 3
     });
 
-    this.createExercise({
+    await this.createExercise({
       workoutId: wednesdayWorkout.id,
       name: "Deadlifts",
       repsAndWeight: "4x8 (40–50% bodyweight)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: wednesdayWorkout.id,
       name: "Bulgarian Split Squats",
       repsAndWeight: "3x10 per leg (Bodyweight or 8–10 kg dumbbells)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: wednesdayWorkout.id,
       name: "Glute Bridges",
       repsAndWeight: "3x12 (30–40 kg)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: wednesdayWorkout.id,
       name: "Hamstring Curls (Machine)",
       repsAndWeight: "3x12 (20–30 kg)"
@@ -356,33 +366,33 @@ export class MemStorage implements IStorage {
       dayNumber: 4
     });
 
-    const thursdayWorkout = this.createWorkout({
+    const thursdayWorkout = await this.createWorkout({
       day: "thursday",
       type: "Full Body Strength",
       dayNumber: 4
     });
 
-    this.createExercise({
+    await this.createExercise({
       workoutId: thursdayWorkout.id,
       name: "Back Squats",
       repsAndWeight: "4x8 (40–50% bodyweight)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: thursdayWorkout.id,
       name: "Deadlifts",
       repsAndWeight: "3x8 (40–50% bodyweight)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: thursdayWorkout.id,
       name: "Pull-Ups",
       repsAndWeight: "3x8 (Assisted if needed)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: thursdayWorkout.id,
       name: "Bent Over Rows",
       repsAndWeight: "3x10 (20–30 kg total)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: thursdayWorkout.id,
       name: "Planks",
       repsAndWeight: "3x1 min hold"
@@ -457,7 +467,7 @@ export class MemStorage implements IStorage {
     });
 
     // No workout on Saturday (rest day)
-    this.createWorkout({
+    await this.createWorkout({
       day: "saturday",
       type: "Rest Day (Active Recovery: Walking/Stretching)",
       dayNumber: 6
@@ -487,7 +497,7 @@ export class MemStorage implements IStorage {
     });
 
     // No workout on Sunday (rest day)
-    this.createWorkout({
+    await this.createWorkout({
       day: "sunday",
       type: "Rest Day (Active Recovery: Walking/Stretching)",
       dayNumber: 7

@@ -72,6 +72,7 @@ export const progress = pgTable("progress", {
   date: text("date").notNull(), // Storing as ISO string YYYY-MM-DD
   mealCompletions: text("meal_completions").notNull(), // JSON string of meal IDs that are completed
   workoutCompleted: boolean("workout_completed").notNull().default(false),
+  exerciseCompletions: text("exercise_completions").notNull().default('[]'), // JSON string of exercise IDs that are completed
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

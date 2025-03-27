@@ -38,7 +38,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     // Special handling for workouts based on the day
-    const dayToExercisesMap = {
+    // Define exercise type
+    type ExerciseInfo = { name: string; repsAndWeight: string };
+
+    // Add proper index signature to the map
+    const dayToExercisesMap: { [key: string]: ExerciseInfo[] } = {
       "monday": [
         { name: "Barbell Squats", repsAndWeight: "4x8–10 (40–50% bodyweight)" },
         { name: "Romanian Deadlifts", repsAndWeight: "3x10–12 (25–35 kg)" },
@@ -82,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (dayToExercisesMap[dayKey]) {
       console.log(`Special handling for ${day} workout`);
       // Create exercises with proper IDs and workoutIds
-      const exercises = dayToExercisesMap[dayKey].map((ex, index) => ({
+      const exercises = dayToExercisesMap[dayKey].map((ex: ExerciseInfo, index: number) => ({
         id: workout.id * 100 + index,
         workoutId: workout.id,
         name: ex.name,
@@ -131,6 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         date: formattedDate,
         mealCompletions: JSON.stringify([]),
         workoutCompleted: false,
+        exerciseCompletions: JSON.stringify([]),
         notes: ""
       });
     } else {
@@ -167,6 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           date: formattedDate,
           mealCompletions: data.mealCompletions || JSON.stringify([]),
           workoutCompleted: data.workoutCompleted || false,
+          exerciseCompletions: data.exerciseCompletions || JSON.stringify([]),
           notes: data.notes || ""
         });
       } else {
@@ -212,6 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         date: formattedDate,
         mealCompletions: JSON.stringify([]),
         workoutCompleted: false,
+        exerciseCompletions: JSON.stringify([]),
         notes
       });
     } else {
@@ -252,6 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           date: formattedDate,
           mealCompletions: JSON.stringify([]),
           workoutCompleted: false,
+          exerciseCompletions: JSON.stringify([]),
           notes: ""
         });
       }
