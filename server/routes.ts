@@ -173,7 +173,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           mealCompletions: data.mealCompletions || JSON.stringify([]),
           workoutCompleted: data.workoutCompleted || false,
           exerciseCompletions: data.exerciseCompletions || JSON.stringify([]),
-          dailyWalkCompleted: data.dailyWalkCompleted || false,
           notes: data.notes || ""
         });
       } else {
@@ -220,7 +219,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mealCompletions: JSON.stringify([]),
         workoutCompleted: false,
         exerciseCompletions: JSON.stringify([]),
-        dailyWalkCompleted: false,
         notes
       });
     } else {
@@ -262,7 +260,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           mealCompletions: JSON.stringify([]),
           workoutCompleted: false,
           exerciseCompletions: JSON.stringify([]),
-          dailyWalkCompleted: false,
           notes: ""
         });
       }
@@ -318,7 +315,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             mealCompletionRate,
             workoutCompleted: dayProgress.workoutCompleted,
             exerciseCompletionRate,
-            dailyWalkCompleted: dayProgress.dailyWalkCompleted,
             weekNumber: Math.ceil(dayNumber / 7)
           });
         }
@@ -335,15 +331,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const workoutCompletionCount = weekDays.filter(day => day.workoutCompleted).length;
         const workoutCompletionRate = weekDays.length > 0 ? workoutCompletionCount / weekDays.length : 0;
         const totalExerciseCompletionRate = weekDays.reduce((sum, day) => sum + day.exerciseCompletionRate, 0) / weekDays.length;
-        const dailyWalkCompletionCount = weekDays.filter(day => day.dailyWalkCompleted).length;
-        const dailyWalkCompletionRate = weekDays.length > 0 ? dailyWalkCompletionCount / weekDays.length : 0;
         
         weeklyStats.push({
           weekNumber,
           mealCompletionRate: totalMealCompletionRate,
           workoutCompletionRate,
-          exerciseCompletionRate: totalExerciseCompletionRate,
-          dailyWalkCompletionRate
+          exerciseCompletionRate: totalExerciseCompletionRate
         });
       }
     }
