@@ -59,7 +59,11 @@ export class MemStorage implements IStorage {
     this.progressId = 1;
     
     // Initialize with the meal and workout plan data (this would normally come from a database)
-    this.initializeMealPlan();
+    // We need to use an IIFE to allow async in constructor
+    (async () => {
+      await this.initializeMealPlan();
+      console.log("Meal plan initialized with all data");
+    })();
   }
 
   // User methods
@@ -129,7 +133,13 @@ export class MemStorage implements IStorage {
 
   async createExercise(exercise: InsertExercise): Promise<Exercise> {
     const id = this.exerciseId++;
-    const newExercise: Exercise = { ...exercise, id };
+    // Make sure workoutId is explicitly included
+    const newExercise: Exercise = { 
+      ...exercise, 
+      id,
+      workoutId: exercise.workoutId
+    };
+    console.log(`Created exercise with ID: ${id}, workoutId: ${newExercise.workoutId}`);
     this.exercises.set(id, newExercise);
     return newExercise;
   }
@@ -160,23 +170,23 @@ export class MemStorage implements IStorage {
   }
 
   // Initialize with the meal and workout plan data
-  private initializeMealPlan() {
+  private async initializeMealPlan() {
     // Monday - Day 1
-    this.createMeal({
+    await this.createMeal({
       day: "monday",
       time: "12:00 PM",
       description: "1 Cappuccino (low-cal milk)",
       calories: 100,
       dayNumber: 1
     });
-    this.createMeal({
+    await this.createMeal({
       day: "monday",
       time: "1:00 PM",
       description: "2 Scrambled Eggs (150 kcal) + 150g Beef Patty (350 kcal) + 1 tbsp Olive Oil (50 kcal)",
       calories: 500,
       dayNumber: 1
     });
-    this.createMeal({
+    await this.createMeal({
       day: "monday",
       time: "7:00 PM",
       description: "150g Chicken Thighs (350 kcal) + 100g Full-Fat Yogurt (150 kcal)",
@@ -184,33 +194,35 @@ export class MemStorage implements IStorage {
       dayNumber: 1
     });
 
-    const mondayWorkout = this.createWorkout({
+    // Create Monday workout and resolve the promise to get the workout with ID
+    const mondayWorkout = await this.createWorkout({
       day: "monday",
       type: "Lower Body & Core",
       dayNumber: 1
     });
 
-    this.createExercise({
+    // Now mondayWorkout.id is available
+    await this.createExercise({
       workoutId: mondayWorkout.id,
       name: "Barbell Squats",
       repsAndWeight: "4x8–10 (40–50% bodyweight)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: mondayWorkout.id,
       name: "Romanian Deadlifts",
       repsAndWeight: "3x10–12 (25–35 kg)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: mondayWorkout.id,
       name: "Hip Thrusts",
       repsAndWeight: "3x12 (40–50 kg)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: mondayWorkout.id,
       name: "Calf Raises",
       repsAndWeight: "3x15 (Bodyweight or add dumbbells)"
     });
-    this.createExercise({
+    await this.createExercise({
       workoutId: mondayWorkout.id,
       name: "Hanging Leg Raises",
       repsAndWeight: "3x12"
@@ -399,18 +411,23 @@ export class MemStorage implements IStorage {
       dayNumber: 5
     });
 
-    const fridayWorkout = this.createWorkout({
+    // Need to await this to get the ID
+    const fridayWorkout = await this.createWorkout({
       day: "friday",
       type: "Running (30–45 min)",
       dayNumber: 5
     });
 
-    this.createExercise({
+    console.log("Created Friday workout with ID:", fridayWorkout.id);
+    
+    // Now we can safely use the ID
+    await this.createExercise({
       workoutId: fridayWorkout.id,
       name: "Steady-State Run (Moderate Pace)",
       repsAndWeight: "5-6 km"
     });
-    this.createExercise({
+
+    await this.createExercise({
       workoutId: fridayWorkout.id,
       name: "HIIT Sprints",
       repsAndWeight: "10 rounds: 30 sec sprint / 1 min walk"
