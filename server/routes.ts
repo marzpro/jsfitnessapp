@@ -51,6 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { name: "Hanging Leg Raises", repsAndWeight: "3x12" }
       ],
       "tuesday": [
+        { name: "Dynamic Warmup", repsAndWeight: "10 minutes" },
         { name: "Barbell Bench Press", repsAndWeight: "4x8–10 (30–40 kg)" },
         { name: "Seated Dumbbell Shoulder Press", repsAndWeight: "3x10 (7–10 kg each)" },
         { name: "Lat Pulldown", repsAndWeight: "3x12 (25–35 kg)" },

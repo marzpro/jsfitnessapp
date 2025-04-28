@@ -276,14 +276,14 @@ export class MemStorage implements IStorage {
     this.createMeal({
       day: "tuesday",
       time: "1:00 PM",
-      description: "2 Boiled Eggs (150 kcal) + 150g Grilled Chicken Breast (300 kcal) + 1 tbsp Olive Oil (50 kcal)",
+      description: "2 Boiled Eggs + 150g Grilled Chicken Breast + 1 tbsp Olive Oil",
       calories: 500,
       dayNumber: 2
     });
     this.createMeal({
       day: "tuesday",
       time: "7:00 PM",
-      description: "150g Salmon (400 kcal) + 1 Egg White Omelette (100 kcal)",
+      description: "150g Salmon + 1 Egg White Omelette",
       calories: 500,
       dayNumber: 2
     });
